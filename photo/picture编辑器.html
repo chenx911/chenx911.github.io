@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picture 编辑器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f0ebe3;font-family:"Microsoft YaHei",sans-serif;display:flex;height:100vh;overflow:hidden}
+.sidebar{width:200px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column}
+.sidebar h3{padding:12px;font-size:.78em;color:#888;letter-spacing:2px;border-bottom:1px solid #eee;flex-shrink:0}
+.sidebar button.open-btn{margin:10px;padding:7px;background:#369;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:.75em;flex-shrink:0}
+.sidebar .tree{flex:1;overflow-y:auto;padding:4px;font-size:.73em}
+.tree .item{padding:3px 8px;cursor:pointer;display:flex;align-items:center;gap:4px;border-radius:3px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree .item:hover{background:#f0f4f8}
+.tree .item.active{background:#e8f0f8;color:#369;font-weight:bold}
+.tree .item.dir{color:#369}
+.panel{width:280px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;overflow:hidden}
+.panel h3{padding:12px;font-size:.78em;color:#888;letter-spacing:2px;border-bottom:1px solid #eee;flex-shrink:0}
+.panel .opts{flex:1;overflow-y:auto;padding:12px}
+.panel label{display:block;font-size:.72em;color:#888;margin:10px 0 2px}
+.panel input,.panel textarea{width:100%;padding:6px 8px;border:1px solid #ddd;border-radius:4px;font-size:.75em;font-family:inherit;margin-bottom:4px}
+.panel textarea{min-height:80px;resize:vertical}
+.panel button{padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:.75em;margin:4px 2px}
+.panel .btn-insert{background:#369;color:#fff}
+.panel .btn-save{background:#4caf50;color:#fff;width:100%;margin-top:8px}
+.panel .b{font-size:.75em;color:#666;margin-top:12px;display:block}
+.code{flex:1;display:flex;flex-direction:column;background:#1e1e1e}
+.code .bar{background:#333;padding:6px 12px;display:flex;align-items:center;gap:8px}
+.code .bar span{font-size:.72em;color:#aaa}
+.code textarea{flex:1;padding:14px;border:none;font-family:"Consolas","Courier New",monospace;font-size:.78em;line-height:1.6;resize:none;outline:none;background:#1e1e1e;color:#d4d4d4}
+.msg{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 20px;background:#333;color:#fff;border-radius:20px;font-size:.78em;opacity:0;transition:opacity .3s;z-index:99}
+.msg.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h3>📁 文件</h3>
+  <button class="open-btn" onclick="openFolder()">📂 选择并打开文件夹</button>
+  <div class="tree" id="fileTree"><p style="font-size:.7em;color:#aaa;text-align:center;padding:8px">打开 picture1 或 picture2<br>之类的子页面文件夹</p></div>
+</div>
+
+<div class="panel">
+  <h3>⚙️ 编辑选项</h3>
+  <div class="opts" id="editOpts">
+    <p style="font-size:.73em;color:#aaa;text-align:center;padding:12px">点击左侧文件开始编辑</p>
+  </div>
+</div>
+
+<div class="code">
+  <div class="bar">
+    <span id="codeLabel">代码</span>
+    <span style="flex:1"></span>
+    <button onclick="saveFile()" style="padding:4px 12px;background:#4caf50;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:.72em">💾 保存</button>
+  </div>
+  <textarea id="codeEditor" oninput="updateCode()" spellcheck="false"></textarea>
+</div>
+<div class="msg" id="msg"></div>
+
+<script>
+let dirHandle=null,curFile=null,curPath='',curType='';
+
+function showMsg(t){const m=document.getElementById('msg');m.textContent=t;m.classList.add('show');setTimeout(()=>m.classList.remove('show'),2500)}
+
+async function openFolder(){try{dirHandle=await window.showDirectoryPicker();await refreshTree();showMsg('✅ 已打开文件夹')}catch(e){if(e.name!=='AbortError')showMsg('需要Chrome/Edge')}}
+
+async function refreshTree(){
+  const t=document.getElementById('fileTree');t.innerHTML='';
+  await scanDir(t,dirHandle,'');
+}
+async function scanDir(container,handle,path){
+  const e=[];for await(const[n,h]of handle.entries())e.push({n,handle:h,kind:h.kind});
+  e.sort((a,b)=>a.kind===b.kind?a.n.localeCompare(b.n):a.kind==='directory'?-1:1);
+  for(const x of e){
+    if(x.kind==='directory'){
+      const d=document.createElement('div');d.className='item dir';
+      d.innerHTML=`📁 ${x.n}`;
+      const sub=document.createElement('div');sub.style.paddingLeft='12px';sub.style.display='none';
+      d.onclick=()=>{sub.style.display=sub.style.display==='none'?'block':'none'};
+      container.appendChild(d);container.appendChild(sub);
+      await scanDir(sub,x.handle,path+x.n+'/');
+    }else{
+      const d=document.createElement('div');d.className='item';
+      const ext=x.n.split('.').pop();
+      const icons={html:'📄',css:'🎨',jpg:'🖼',png:'🖼',gif:'🖼'};
+      d.innerHTML=`${icons[ext]||'📎'} ${x.n}`;
+      d.onclick=async()=>{
+        document.querySelectorAll('.tree .item').forEach(el=>el.classList.remove('active'));
+        d.classList.add('active');
+        await openFile(x.handle,x.n,path);
+      };
+      container.appendChild(d);
+    }
+  }
+}
+
+async function openFile(handle,name,path){
+  const f=await handle.getFile();const t=await f.text();
+  curFile=handle;curPath=path+name;curType=name.endsWith('.css')?'css':'html';
+  document.getElementById('codeEditor').value=t;
+  document.getElementById('codeLabel').textContent='📄 '+name;
+  renderOpts(curType);
+}
+
+function renderOpts(type){
+  const el=document.getElementById('editOpts');
+  if(type==='html'){
+    el.innerHTML=`
+      <b class="b">🖼 主图片</b>
+      <label>图片路径</label><input type="text" id="optPicSrc" value="picture/img.jpg">
+      <button class="btn-insert" onclick="insertPic()">＋ 插入图片到光标位置</button>
+
+      <b class="b">📝 文字描述</b>
+      <label>描述内容</label><textarea id="optPicText" placeholder="在这里写描述文字……"></textarea>
+      <button class="btn-insert" onclick="insertText()">＋ 插入文字到光标位置</button>
+
+      <b class="b">📋 其他</b>
+      <div style="font-size:.7em;color:#aaa;line-height:1.4">图片和文字会自动居中对齐。<br>也可直接在右侧代码编辑器中修改。<br>本地选择图片链接 → 粘贴到代码中。<br>文字在代码中直接输入。</div>`;
+  }else{
+    el.innerHTML=`
+      <b class="b">🎨 网页背景</b>
+      <div style="display:flex;gap:6px"><input type="color" id="cssBg" value="#D0D0D0" onchange="updateCSS()"><input type="text" id="cssBgTxt" value="#D0D0D0" style="flex:1"></div>
+      <b class="b">📦 内容区背景</b>
+      <div style="display:flex;gap:6px"><input type="color" id="cssWrap" value="#FFFFFF" onchange="updateCSS()"><input type="text" id="cssWrapTxt" value="#FFFFFF" style="flex:1"></div>
+      <b class="b">📝 文字颜色</b>
+      <div style="display:flex;gap:6px"><input type="color" id="cssText" value="#333333" onchange="updateCSS()"><input type="text" id="cssTextTxt" value="#333333" style="flex:1"></div>
+      <b class="b">🔗 链接颜色</b>
+      <div style="display:flex;gap:6px"><input type="color" id="cssLink" value="#336699" onchange="updateCSS()"><input type="text" id="cssLinkTxt" value="#336699" style="flex:1"></div>
+      <b class="b">🔗 hover颜色</b>
+      <div style="display:flex;gap:6px"><input type="color" id="cssHover" value="#224466" onchange="updateCSS()"><input type="text" id="cssHoverTxt" value="#224466" style="flex:1"></div>
+      <div style="font-size:.7em;color:#aaa;margin-top:8px;line-height:1.4">选颜色后自动替换CSS中对应色值</div>`;
+  }
+}
+
+function insertPic(){
+  const src=document.getElementById('optPicSrc')?.value||'picture/img.jpg';
+  const code=`<img src="${src}" alt="">`;
+  insertAtCursor(code);
+  showMsg('✅ 图片已插入');
+}
+function insertText(){
+  const text=document.getElementById('optPicText')?.value||'文字描述';
+  const code=`<p>${text}</p>`;
+  insertAtCursor(code);
+  showMsg('✅ 文字已插入');
+}
+function insertAtCursor(code){
+  const ed=document.getElementById('codeEditor');
+  const pos=ed.selectionStart||ed.value.length;
+  ed.value=ed.value.substring(0,pos)+'\n'+code+'\n'+ed.value.substring(pos);
+}
+
+function updateCSS(){
+  const map={cssBg:{rx:/body\{background:#[0-9a-fA-F]{3,6}/,prefix:'body{background:'},
+             cssWrap:{rx:/background:#[0-9a-fA-F]{3,6}(?![^{]*body)/,prefix:'background:#'},
+             cssText:{rx:/color:#[0-9a-fA-F]{3,6}(?![^{]*(background|body))/,prefix:'color:#'},
+             cssLink:{rx:/a\{color:#[0-9a-fA-F]{3,6}/,prefix:'a{color:#'},
+             cssHover:{rx:/a:hover\{text-decoration:underline;color:#[0-9a-fA-F]{3,6}/,prefix:'a:hover{text-decoration:underline;color:#'}};
+  for(const[k,v]of Object.entries(map)){
+    const el=document.getElementById(k);if(!el)continue;
+    document.getElementById(k+'Txt').value=el.value;
+    const ed=document.getElementById('codeEditor');
+    ed.value=ed.value.replace(v.rx,v.prefix+el.value);
+  }
+}
+
+function updateCode(){}
+async function saveFile(){
+  if(!curFile){showMsg('请先打开一个文件');return}
+  const content=document.getElementById('codeEditor').value;
+  try{const w=await curFile.createWritable();await w.write(content);await w.close();showMsg('✅ 已保存 '+curPath)}catch(e){showMsg('❌ 保存失败')}
+}
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveFile()}});
+</script>
+</body>
+</html>

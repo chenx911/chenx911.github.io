@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>照片</title>
+<link rel="stylesheet" href="photos.css">
+</head>
+<body>
+<div class="wrap">
+
+  <h1 class="page-title">照片</h1>
+
+  <!-- ===== 精选照片（无链接，仅展示，只准一个） ===== -->
+  <div class="featured-section">
+    <h2 class="section-title">✦ 精选</h2>
+    <div class="featured-single">
+      <img src="photos/featured.jpg" alt="" onerror="this.style.background='#e8e0d8';this.style.minHeight='180px'">
+      <p>精选照片</p>
+    </div>
+  </div>
+
+  <!-- ===== 相册区（有链接，点击进入子页） ===== -->
+  <div class="gallery-section" id="gallerySection">
+    <h2 class="section-title">✦ 相册</h2>
+    <div class="gallery-grid">
+      <!-- 每个卡片：点击图片进入子页面 -->
+      <a href="picture1/picture.html" class="gallery-card">
+        <img src="picture1/picture/img.jpg" alt="" onerror="this.style.background='#e8e0d8';this.style.minHeight='150px'">
+        <p>照片名1</p>
+      </a>
+      <a href="picture2/picture.html" class="gallery-card">
+        <img src="picture2/picture/img.jpg" alt="" onerror="this.style.background='#e8e0d8';this.style.minHeight='150px'">
+        <p>照片名2</p>
+      </a>
+      <a href="picture3/picture.html" class="gallery-card">
+        <img src="picture3/picture/img.jpg" alt="" onerror="this.style.background='#e8e0d8';this.style.minHeight='150px'">
+        <p>照片名3</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== 分页 ===== -->
+  <div class="pagination" id="pagination">
+    <span class="page-num active">1</span>
+    <a href="photos_page2.html" class="page-num">2</a>
+    <a href="photos_page2.html" class="page-arrow">下一页 →</a>
+  </div>
+
+</div>
+</body>
+</html>

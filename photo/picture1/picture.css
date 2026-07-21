@@ -1,0 +1,64 @@
+/* ===== 照片子页 · 样式 ===== */
+
+/* --- 整体 --- */
+body {
+  background: #D0D0D0;          /* 网页背景色 */
+  color: #333;                   /* 文字颜色 */
+  font-family: "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 20px;
+  text-align: center;
+}
+a { color: #369; text-decoration: none; }        /* 链接颜色 */
+a:hover { text-decoration: underline; }           /* 链接 hover 颜色 */
+.wrap {
+  width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  background: #FFF;              /* 内容区背景色 */
+  padding: 30px 20px;
+  border-radius: 8px;
+}
+.pic-title {
+  font-size: 1.2em;
+  font-weight: normal;
+  letter-spacing: 2px;
+  color: #369;
+  margin-bottom: 20px;
+}
+
+/* --- 图片 --- */
+.pic-main {
+  margin: 0 auto 20px;
+  max-width: 600px;
+}
+.pic-main img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background: #fff;
+}
+
+/* --- 文字描述 --- */
+.pic-text {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: justify;
+}
+.pic-text p {
+  margin-bottom: 12px;
+}
+
+hr {
+  border: none;
+  border-top: 1px dashed #CCC;
+  margin: 20px 0;
+}
+.back { font-size: 0.9em; }
+
+@media (max-width: 640px) {
+  .wrap { width: auto; margin: 0 8px; }
+}

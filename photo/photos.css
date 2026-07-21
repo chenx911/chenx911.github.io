@@ -1,0 +1,132 @@
+/* ===== 照片页面样式 ===== */
+
+/* --- 整体 --- */
+body {
+  background: #D0D0D0;          /* 网页背景色 */
+  color: #333;                   /* 文字颜色 */
+  font-family: "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 20px;
+  text-align: center;
+}
+.wrap {
+  width: 780px;                  /* 卡片宽度 */
+  margin: 0 auto;
+  text-align: left;
+  background: #FFF;              /* 内容区背景色 */
+  padding: 24px;
+  border-radius: 8px;
+}
+.page-title {
+  font-size: 1.3em;
+  font-weight: normal;
+  text-align: center;
+  letter-spacing: 3px;
+  color: #369;
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: 1em;
+  font-weight: normal;
+  color: #888;
+  letter-spacing: 2px;
+  margin: 20px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #CCC;
+}
+
+/* --- 精选照片区（只一个） --- */
+.featured-section {
+  margin-bottom: 10px;
+}
+.featured-single {
+  max-width: 300px;
+  margin: 0 auto;
+  text-align: center;
+}
+.featured-single img {
+  width: 100%;
+  display: block;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background: #fff;
+  border-radius: 4px;
+}
+.featured-single p {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}
+
+/* --- 相册区（3列网格，点击进入子页） --- */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* 每行3个 */
+  gap: 16px;
+}
+.gallery-card {
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.2s;
+}
+.gallery-card:hover {
+  transform: translateY(-3px);
+}
+.gallery-card img {
+  width: 100%;
+  display: block;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background: #fff;
+  border-radius: 4px;
+}
+.gallery-card p {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+  max-width: 10ch;              /* 最多10个字 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- 分页 --- */
+.pagination {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+.page-num {
+  display: inline-block;
+  padding: 4px 10px;
+  margin: 0 3px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  text-decoration: none;
+  color: #666;
+  font-size: 0.85em;
+}
+.page-num:hover { background: #f0f0f0; }
+.page-num.active { background: #369; color: #fff; border-color: #369; }
+.page-arrow {
+  display: inline-block;
+  padding: 4px 12px;
+  margin: 0 3px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  text-decoration: none;
+  color: #369;
+  font-size: 0.85em;
+}
+
+/* --- 响应式 --- */
+@media (max-width: 640px) {
+  .wrap { width: auto; margin: 0 8px; }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .featured-row { flex-direction: column; }
+}
